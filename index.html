@@ -1,0 +1,148 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Grafik Covid-19 Di Indonesia</title>
+  <!--kita memasukan/hubungkan dengan script chart.js dan JQuery-->
+  <!--Agar dapat membuat fitur grafik di HTML 5 di tag canvas-->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.6.0/dist/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.6.0/papaparse.min.js"></script>
+  
+  <!--link dan Script Bootstap untuk mendesign website-->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <!--Di tag style dibawah ini kita mengatur tampilan canvas dengan garis border 2px dan hitam-->
+  <style>
+    canvas {
+        border: solid 2px
+    }
+  </style>
+</head>
+<body>
+
+  <!--Buat Header atau judul dengan class container serta class row justify-content-center yang dimuat dari bootstrap.-->
+  <div class="container">
+    <div class="row justify-content-center">
+      <h1>Grafik Covid-19 di Indonesia</h1>
+    </div>
+  </div>
+  
+  <!--Kita buat tag p untuk menulis dengan class lead yang memuat design di bootstrap-->
+  <p class="lead">
+    Penyakit virus corona (COVID-19) adalah penyakit menular yang disebabkan oleh virus SARS-CoV-2. Sebagian besar orang yang tertular COVID-19 akan mengalami gejala ringan hingga sedang, dan akan pulih tanpa penanganan khusus.
+    Grafik Dibawah ini merupaka gabungan kasus yang terkonfirmasi dari seluruh provinsi yang ada di indonesia.
+  </p>
+
+  <!--Buat tag canvas dengan memanggil id TesChart dan diberi tinggi 100-->
+  <canvas id="TesChart" height=100"></canvas>
+
+  <script>
+    //kita buat fungsi window.onload agar dapat memuat data yang akan dismpan di data, confirmedCases, confirmedRecovered, dan confirmedDeaths.
+    window.onload = function() {
+      let dates = [];
+      let confirmedCases = [];
+      let confirmedRecovered = [];
+      let confirmedDeaths = [];
+
+      //kita buat fungsi addArrayFunc yang mana data yang dimuat dari fungsi window.onload kemudian dipush ke masing-masing data dan dismpan di array.
+      function addArrayFunc(date, confirmed, recovered, deaths) {
+        dates.push(date);
+        confirmedCases.push(confirmed);
+        confirmedRecovered.push(recovered);
+        confirmedDeaths.push(deaths);
+      }
+
+      //fetch yaitu untuk memiminta dan mengambil data json dari sumber data url berikut. kemudian diminta respon dengan file extention json.
+      fetch("https://pomber.github.io/covid19/timeseries.json")
+        .then(response => response.json())
+        
+        //Dengan memilih negara di dalam file json yaitu case Indonesia.
+        .then(cases => {
+          //Dengan perulangan untuk mengambil data  date, confirmed, recovered, dan deaths.
+          cases["Indonesia"].forEach(({
+              date,
+              confirmed,
+              recovered,
+              deaths
+            }) =>
+            addArrayFunc(date, confirmed, recovered, deaths)
+          )
+
+          //kita buat Chart dengan mengambil Id TestChart pada element html canvas.
+          new Chart(document.getElementById('TesChart'), {
+
+            //dengan tipe grafik line
+            type: 'line',
+            data: {
+              labels: dates,
+              //Dataset dengan Legend Positif berwarna merah, Sembuh berwarna biru dan Meninggal berwarna kuning serta menggunakan pointStyle bulat. 
+              datasets: [{
+                  label: 'Positif',
+                  pointStyle: 'circle',
+                  borderColor: '#F32A2D',
+                  backgroundColor: '#C70002',
+                  fill: 'false',
+                  //dimuat dari data yang telah di ambil di web service json.
+                  data: confirmedCases
+                },
+                {
+                  label: 'Sembuh',
+                  pointStyle: 'circle',
+                  borderColor: '#2A76F3',
+                  backgroundColor: '#0F4FB9',
+                  fill: 'false',
+                  //dimuat dari data yang telah di ambil di web service json.
+                  data: confirmedRecovered
+                },
+                {
+                  label: 'Meninggal',
+                  pointStyle: 'circle',
+                  borderColor: '#F5AA33',
+                  backgroundColor: '#D29B13',
+                  fill: 'false',
+                  //dimuat dari data yang telah di ambil di web service json.
+                  data: confirmedDeaths
+                }
+              ]
+            },
+            options: {
+              plugins: {
+                //menambah Judul
+                title: {
+                    display: true,
+                    text: 'Kasus Covid-19 di Indonesia'
+                }
+              },
+              //buat scale atau teks sumbu x=tanggal dan y=Jumlah.
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: 'Tanggal'
+                  }
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: 'Jumlah'
+                  }
+                }
+              }
+            }
+          });
+        });
+    }
+  </script>
+
+	<!--Buat footer dengan isi copyrigt data dari datasets timeseries.-->
+	<div class="footer-copyright text-center py-3"> Datasets JSON Web Services by: 
+    <a href="https://pomber.github.io/covid19/timeseries.json"> Timeseries.json</a>
+	<a> { Arrio Saputra || 195410111}</a>
+  </div>
+</body>
+</html>
+
+
+
