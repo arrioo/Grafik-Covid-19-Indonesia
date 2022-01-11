@@ -34,11 +34,14 @@
     Penyakit virus corona (COVID-19) adalah penyakit menular yang disebabkan oleh virus SARS-CoV-2. Sebagian besar orang yang tertular COVID-19 akan mengalami gejala ringan hingga sedang, dan akan pulih tanpa penanganan khusus.
     Grafik Dibawah ini merupaka gabungan kasus yang terkonfirmasi dari seluruh provinsi yang ada di indonesia.
   </p>
-
+  
+  <!--Canvas digunakn untuk menampilkan hasil konfigurasi grafik yang telah dibuat sebelumnya dengan memanggil id-->
   <!--Buat tag canvas dengan memanggil id TesChart dan diberi tinggi 100-->
   <canvas id="TesChart" height=100"></canvas>
 
   <script>
+  
+	//Buat Pengambilan/Respon data dari Webservice dengan javacript.
     //kita buat fungsi window.onload agar dapat memuat data yang akan dismpan di data, confirmedCases, confirmedRecovered, dan confirmedDeaths.
     window.onload = function() {
       let dates = [];
@@ -53,12 +56,12 @@
         confirmedRecovered.push(recovered);
         confirmedDeaths.push(deaths);
       }
-
-      //fetch yaitu untuk memiminta dan mengambil data json dari sumber data url berikut. kemudian diminta respon dengan file extention json.
+	  
+	  //Pharsing data.
+      //fetch yaitu untuk memiminta dan mengambil data json dari sumber data url berikut. kemudian diminta respon di file dengan extention json tersebut.
       fetch("https://pomber.github.io/covid19/timeseries.json")
         .then(response => response.json())
-        
-        //Dengan memilih negara di dalam file json yaitu case Indonesia.
+		// saya modifikasi dengan memilih negara di dalam file json yaitu case Indonesia.
         .then(cases => {
           //Dengan perulangan untuk mengambil data  date, confirmed, recovered, dan deaths.
           cases["Indonesia"].forEach(({
@@ -71,10 +74,12 @@
             addArrayFunc(date, confirmed, recovered, deaths)
           )
 
+		  //Konfigurasi Chart.Js
           //kita buat Chart dengan mengambil Id TestChart pada element html canvas.
           new Chart(document.getElementById('TesChart'), {
 
             //dengan tipe grafik line
+			//dimodifikasi warna, pointstyle, dan label.
             type: 'line',
             data: {
               labels: dates,
@@ -108,6 +113,7 @@
                 }
               ]
             },
+			//option dimodifikasi dengan menambahkan judul serta membuat scale untuk sumbu x dan y.
             options: {
               plugins: {
                 //menambah Judul
@@ -139,7 +145,7 @@
 
 	<!--Buat footer dengan isi copyrigt data dari datasets timeseries.-->
 	<div class="footer-copyright text-center py-3"> Datasets JSON Web Services by: 
-    <a href="https://pomber.github.io/covid19/timeseries.json"> Timeseries.json</a>
+    <a href="https://pomber.github.io/covid19/timeseries.json"> Pomber.github.io</a>
 	<a> { Arrio Saputra || 195410111}</a>
   </div>
 </body>
